@@ -1,0 +1,22 @@
+	.erase {width: auto; height: auto;}
+
+	.sido {
+		width: auto;
+		height: 30px;
+		padding-left: 10px;
+		padding-right: 10px;
+		background: rgb(67, 77, 104);
+		border: 2px solid rgb(67, 77, 104);
+		border-radius: 30px;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.mark {
+	border-radius:10px; border: 1px solid blue; color: white; font-size: 14px; width: 30px; height: 30px; background: blue
+	}
+	.circle {
+	border-radius:50%; border: 1px solid aqua; color: white; font-size: 24px; width: 100px; height: 100px; background: aqua; display: flex; align-items: center; justify-content: center;
+	}

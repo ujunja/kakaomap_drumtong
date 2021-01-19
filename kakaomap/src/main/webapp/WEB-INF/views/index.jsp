@@ -11,30 +11,6 @@
 <link rel="stylesheet" href="${cpath }/mymap/css/mymap.css">
 <!-- jqueryCDN -->
 <script  src="https://code.jquery.com/jquery-3.5.1.min.js"  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="  crossorigin="anonymous"></script>
-<style type="text/css">
-		.erase {width: auto; height: auto;}
-
-	.sido {
-		width: auto;
-		height: 30px;
-		padding-left: 10px;
-		padding-right: 10px;
-		background: rgb(67, 77, 104);
-		border: 2px solid rgb(67, 77, 104);
-		border-radius: 30px;
-		color: white;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.mark {
-	border-radius:10px; border: 1px solid blue; color: white; font-size: 14px; width: 30px; height: 30px; background: blue
-	}
-	.circle {
-	border-radius:50%; border: 1px solid aqua; color: white; font-size: 24px; width: 100px; height: 100px; background: aqua; display: flex; align-items: center; justify-content: center;
-	}
-</style>
 </head>
 <body>
 	<p style="margin-top: -12px">
@@ -48,7 +24,7 @@
 	<script type="text/javascript"
 		src="//dapi.kakao.com/v2/maps/sdk.js?appkey=683cef37c8e822b967d6997468818ca4"></script>
 	<script>
-	
+
 	let data = [
 			[33.450701, 126.570667, 'A'],
 			[33.350701, 126.170667, 'B'],
@@ -97,9 +73,11 @@
 				break;
 			case 6:
 			case 7:
+				overfive();
+				break;
 			case 8:
 			case 9:
-				overfive();
+				sigunguLevel();
 				break;
 			case 10:
 			case 11:
@@ -213,6 +191,32 @@
 		customOverlay1.setMap(map);
 	}
 	
+	function sigunguLevel() {
+		$('.erase').parent().remove();
+		let sigungu = ${sigungu };
+		console.log(sigungu);
+		
+	  	  for(i = 0; i < sigungu.length; i++) {
+			 	let sigungu_content = '<div class="erase"><div class="sido">'
+			 	+ (sigungu[i].sigungunm).substring(1, sigungu[i].sigungunm.length - 1) +'</div></div>';
+	 		   	    	
+				// 커스텀 오버레이가 표시될 위치입니다 
+				let sigungu_position = new kakao.maps.LatLng(sigungu[i].pointy, sigungu[i].pointx);  
+				console.log('Y : ', sigungu[i].pointy);
+				console.log('X : ', sigungu[i].pointx);
+				// 커스텀 오버레이를 생성합니다
+				let sigungu_Overlay = new kakao.maps.CustomOverlay({
+			   	 position: sigungu_position,
+			   	 content: sigungu_content,
+		    		xAnchor: 0.3,
+		   			yAnchor: 0.91
+				});
+			
+				// 커스텀 오버레이를 지도에 표시합니다
+				sigungu_Overlay.setMap(map);
+	    	}
+	}
+	
 	function sidoLevel() {
 		$('.erase').parent().remove();
 		
@@ -265,7 +269,7 @@
 		console.log('sido_datas : ', sido_datas);
 		
 		$.each(sido_datas, function(index, val) {
-			sido_coordinates.geometry,coordinates;
+			sido_coordinates = geometry.coordinates;
 			sido_nm = val.preperties.SIGUNGU_NM;
 			
 			console.log('sido_nm : ', sido_nm);

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
 import com.mymap.service.MyMapService;
 
 @Controller
@@ -16,8 +17,8 @@ public class HomeController {
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ModelAndView home() {	
 		ModelAndView mav = new ModelAndView("index");
-		System.out.println("확인 : " + mms.getMap());
+		mav.addObject("sigungu", new Gson().toJson(mms.getMap()));
+//		System.out.println("확인 : " + mms.getMap().get(0).getSigungunm());
 		return mav;
 	}
-	
 }

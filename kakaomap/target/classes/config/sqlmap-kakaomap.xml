@@ -5,7 +5,7 @@
 
 <!-- 사업장 비즈니스 테이블	 -->
 <mapper namespace="com.mymap.dao.MyMapDao">
-	<select id="getMap" resultType="String">
-		select * from v$version
+	<select id="getMap" resultType="com.mymap.vo.sigunguvo">
+		select * from sigungu
 	</select>
 </mapper>

@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mymap.dao.MyMapDao;
+import com.mymap.vo.sigunguvo;
 
 @Service
 public class MyMapService {
 
 	@Autowired MyMapDao mmd;
 	
-	public List<String> getMap() {
+	public List<sigunguvo> getMap() {
 		return mmd.getMap();
 	}
 

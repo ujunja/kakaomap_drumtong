@@ -194,7 +194,7 @@
 	function sigunguLevel() {
 		$('.erase').parent().remove();
 		let sigungu = ${sigungu };
-		console.log(sigungu);
+// 		console.log(sigungu);
 		
 	  	  for(i = 0; i < sigungu.length; i++) {
 			 	let sigungu_content = '<div class="erase"><div class="sido">'
@@ -202,8 +202,8 @@
 	 		   	    	
 				// 커스텀 오버레이가 표시될 위치입니다 
 				let sigungu_position = new kakao.maps.LatLng(sigungu[i].pointy, sigungu[i].pointx);  
-				console.log('Y : ', sigungu[i].pointy);
-				console.log('X : ', sigungu[i].pointx);
+// 				console.log('Y : ', sigungu[i].pointy);
+// 				console.log('X : ', sigungu[i].pointx);
 				// 커스텀 오버레이를 생성합니다
 				let sigungu_Overlay = new kakao.maps.CustomOverlay({
 			   	 position: sigungu_position,
@@ -273,19 +273,18 @@
 			let area = new Object();
 			sido_coordinates = item.geometry.coordinates;
 			console.log('길이 : ', sido_coordinates[0][0].length);
-			sido_nm = item.properties.SIGUNGU_NM;
+			sido_nm = item.properties.CTP_KOR_NM;
 			area.name = sido_nm;
 			area.path = new Array();
 			for(i = 0; i < sido_coordinates[0][0].length; i++) {
-// 			for(i = 0; i < 3; i++) {
 				area.path.push(new kakao.maps.LatLng(sido_coordinates[0][0][i][1], sido_coordinates[0][0][i][0]));
 			}
 			
-// 			console.log('마지막 : ', area);
+ 			console.log('마지막 : ', area);
 		areas.push(area);
 		
 		})
-		for (j = 0, len = areas.length; j < len; j++) {
+		for (j = 0 ; j < areas.length; j++) {
   			  displayArea(areas[j]);
 		}
 	});

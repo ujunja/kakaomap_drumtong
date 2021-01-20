@@ -252,9 +252,18 @@
 	    	}
 	}
 	
-	$.getJSON("mymap/json/EMDgeoJson.getjson", function(geojson) {
+	$.getJSON("mymap/json/EMDgeoJson.geojson", function(geojson) {
 		let emd_datas = geojson.features;
 		let emd_coordinate = [];
+		let emd_nm = "";
+		
+		console.log('emd_datas : ', emd_datas);
+		
+		$.each(emd_datas, function(index, item) {
+			emd_coordinates = item.geometry.coordinates;
+			emd_nm = item.properties.EMD_KOR_NM;
+			emddisplayArea(emd_coordinates, emd_nm);
+		});
 	})
 
 	
@@ -359,7 +368,70 @@
 		}
 	
 	function emddisplayArea(coordinates, name) { // 읍면동 폴리곤 활성화
+		var emd_path = [];
 		
+		$.each(coordinates[0][0], function(index1, coordinate) { //console.log(coordinates)를 확인해보면 보면 [0]번째에 배열이 주로 저장이 됨.  그래서 [0]번째 배열에서 꺼내줌.
+			
+			emd_path.push(new kakao.maps.LatLng(coordinate[1], coordinate[0])); //new daum.maps.LatLng가 없으면 인식을 못해서 path 배열에 추가
+		
+		});	  
+		
+		// 다각형을 생성합니다 
+		var emd_polygon = new kakao.maps.Polygon({
+				map : map, // 다각형을 표시할 지도 객체
+				path : emd_path,
+				strokeWeight : 2,
+				strokeColor : '#004c80',
+				strokeOpacity : 0.8,
+				fillColor : '#fff',
+				fillOpacity : 0.7
+			});
+		
+		// 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다 
+		// 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
+		kakao.maps.event.addListener(emd_polygon, 'mouseover', function(
+				mouseEvent) {
+				emd_polygon.setOptions({
+				fillColor : '#09f'
+			});
+
+			// 	        polygonoverlay.setContent('<div class="area">' + area.name + '</div>');
+			polygonoverlay.setContent('<div class="area">' + name
+					+ '</div>');
+
+			polygonoverlay.setPosition(mouseEvent.latLng);
+			polygonoverlay.setMap(map);
+		});
+
+		// 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다 
+		kakao.maps.event.addListener(emd_polygon, 'mousemove', function(
+				mouseEvent) {
+
+			polygonoverlay.setPosition(mouseEvent.latLng);
+		});
+
+		// 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
+		// 커스텀 오버레이를 지도에서 제거합니다 
+		kakao.maps.event.addListener(emd_polygon, 'mouseout', function() {
+			emd_polygon.setOptions({
+				fillColor : '#fff'
+			});
+			polygonoverlay.setMap(null);
+		});
+
+		// 다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시합니다 
+		kakao.maps.event.addListener(emd_polygon, 'click',
+				function(mouseEvent) {
+					var content = '<div class="info">'
+							+ '   <div class="title">' + name + '</div>'
+							+ '   <div class="size">총 면적 : 약 '
+							+ Math.floor(emd_polygon.getArea())
+							+ ' m<sup>2</sup></area>' + '</div>';
+
+					infowindow.setContent(content);
+					infowindow.setPosition(mouseEvent.latLng);
+					infowindow.setMap(map);
+				});
 	}
 	</script>
 </body>

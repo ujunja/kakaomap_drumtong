@@ -24,7 +24,7 @@
 	<script type="text/javascript"
 		src="//dapi.kakao.com/v2/maps/sdk.js?appkey=683cef37c8e822b967d6997468818ca4"></script>
 	<script>
-
+	
 	let data = [
 			[33.450701, 126.570667, 'A'],
 			[33.350701, 126.170667, 'B'],
@@ -47,7 +47,8 @@
 		// 지도의 확대 레벨
 		};
 
-		var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+	var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+	
 
 		// 지도 확대 축소를 제어할 수 있는  줌 컨트롤을 생성합니다
 		var zoomControl = new kakao.maps.ZoomControl();
@@ -156,13 +157,6 @@
 		let count = 0;
 
 	  	for(i = 0; i < data.length; i++) {
-// 			console.log('중심 : ', map.getCenter());
-// 	  		console.log('data[0][1] : ', data[i][1]);
-// 	  		console.log('swLatLng[1] : ', swLatLng.La);
-// 	  		console.log('neLatLng[1] : ', neLatLng.La);
-// 	  		console.log('data[0][0] : ', data[i][0]);
-// 	  		console.log('swLatLng[0] : ', swLatLng.Ma);
-// 	  		console.log('neLatLng[0] : ', neLatLng.Ma);
 	  		
 	  		if(data[i][0] > swLatLng.Ma && data[i][0] < neLatLng.Ma) {
 	  			if(data[i][1] > swLatLng.La && data[i][1] < neLatLng.La) {
@@ -194,7 +188,6 @@
 	function sigunguLevel() {
 		$('.erase').parent().remove();
 		let sigungu = ${sigungu };
-// 		console.log(sigungu);
 		
 	  	  for(i = 0; i < sigungu.length; i++) {
 			 	let sigungu_content = '<div class="erase"><div class="sido">'
@@ -202,8 +195,6 @@
 	 		   	    	
 				// 커스텀 오버레이가 표시될 위치입니다 
 				let sigungu_position = new kakao.maps.LatLng(sigungu[i].pointy, sigungu[i].pointx);  
-// 				console.log('Y : ', sigungu[i].pointy);
-// 				console.log('X : ', sigungu[i].pointx);
 				// 커스텀 오버레이를 생성합니다
 				let sigungu_Overlay = new kakao.maps.CustomOverlay({
 			   	 position: sigungu_position,
@@ -261,91 +252,115 @@
 	    	}
 	}
 	
+	$.getJSON("mymap/json/EMDgeoJson.getjson", function(geojson) {
+		let emd_datas = geojson.features;
+		let emd_coordinate = [];
+	})
+
 	
-	$.getJSON("mymap/json/sidogeoJSON.geojson", function(geojson) {
-		let sido_datas = geojson.features;
-		let sido_coordinates = [];
-		let sido_nm = "";
+	
+// 	$.getJSON("mymap/json/sidogeoJSON.geojson", function(geojson) {
+// 		let sido_datas = geojson.features;
+// 		let sido_coordinates = [];
+// 		let sido_nm = "";
 		
-		console.log('sido_datas : ', sido_datas);
-		var areas = new Array();
-		$.each(sido_datas, function(index, item) {
-			let area = new Object();
-			sido_coordinates = item.geometry.coordinates;
-			console.log('길이 : ', sido_coordinates[0][0].length);
-			sido_nm = item.properties.CTP_KOR_NM;
-			area.name = sido_nm;
-			area.path = new Array();
-			for(i = 0; i < sido_coordinates[0][0].length; i++) {
-				area.path.push(new kakao.maps.LatLng(sido_coordinates[0][0][i][1], sido_coordinates[0][0][i][0]));
-			}
-			
- 			console.log('마지막 : ', area);
-		areas.push(area);
-		
-		})
-		for (j = 0 ; j < areas.length; j++) {
-  			  displayArea(areas[j]);
-		}
-	});
+// 		console.log('sido_datas : ', sido_datas);
+// 		var areas = new Array();
+// 		$.each(sido_datas, function(index, item) {
+// 			let area = new Object();
+// 			sido_coordinates = item.geometry.coordinates;
+// 			sido_nm = item.properties.CTP_KOR_NM;
+// 			sidodisplayArea(sido_coordinates, sido_nm);
+
+// 		})
+// 	});
 	
 	
 	polygonoverlay = new kakao.maps.CustomOverlay({}),
 	infowindow = new kakao.maps.InfoWindow({removable: true});
 
+	var polygons=[]; 		
 		
+	function sidodisplayArea(coordinates, name) {	// 시군구
 		
-	function displayArea(area) {
+		  var path = [];            //폴리곤 그려줄 path
+		  
+		  if(name == "부산광역시" || name == "인천광역시" || name == "울산광역시" || name == "경상남도" || name == "전라북도" || name == "강원도" || name == "충청남도" || name == "경기도" || name == "제주특별자치도"){
+				$.each(coordinates, function(index1, item) { //console.log(coordinates)를 확인해보면 보면 [0]번째에 배열이 주로 저장이 됨.  그래서 [0]번째 배열에서 꺼내줌.
+					
+					$(item[0]).each(function(index2, coordinate) {
+						path.push(new kakao.maps.LatLng(coordinate[1], coordinate[0])); //new daum.maps.LatLng가 없으면 인식을 못해서 path 배열에 추가
+					});
+				
+				});	  
+		  }
+		else {
+			$.each(coordinates[0][0], function(index, coordinate) { //console.log(coordinates)를 확인해보면 보면 [0]번째에 배열이 주로 저장이 됨.  그래서 [0]번째 배열에서 꺼내줌.
+					path.push(new kakao.maps.LatLng(coordinate[1], coordinate[0])); //new daum.maps.LatLng가 없으면 인식을 못해서 path 배열에 추가
+				});
+			}
+			
+			// 다각형을 생성합니다 
+			var polygon = new kakao.maps.Polygon({
+				map : map, // 다각형을 표시할 지도 객체
+				path : path,
+				strokeWeight : 2,
+				strokeColor : '#004c80',
+				strokeOpacity : 0.8,
+				fillColor : '#fff',
+				fillOpacity : 0.7
+			});
 
-	    // 다각형을 생성합니다 
-	    var polygon = new kakao.maps.Polygon({
-	        map: map, // 다각형을 표시할 지도 객체
-	        path: area.path,
-	        strokeWeight: 2,
-	        strokeColor: '#004c80',
-	        strokeOpacity: 0.8,
-	        fillColor: '#fff',
-	        fillOpacity: 0.7 
-	    });
-	    
+			// 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다 
+			// 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
+			kakao.maps.event.addListener(polygon, 'mouseover', function(
+					mouseEvent) {
+				polygon.setOptions({
+					fillColor : '#09f'
+				});
 
-	    // 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다 
-	    // 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
-	    kakao.maps.event.addListener(polygon, 'mouseover', function(mouseEvent) {
-	        polygon.setOptions({fillColor: '#09f'});
+				// 	        polygonoverlay.setContent('<div class="area">' + area.name + '</div>');
+				polygonoverlay.setContent('<div class="area">' + name
+						+ '</div>');
 
-	        polygonoverlay.setContent('<div class="area">' + area.name + '</div>');
-	        
-	        polygonoverlay.setPosition(mouseEvent.latLng); 
-	        polygonoverlay.setMap(map);
-	    });
+				polygonoverlay.setPosition(mouseEvent.latLng);
+				polygonoverlay.setMap(map);
+			});
 
-	    // 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다 
-	    kakao.maps.event.addListener(polygon, 'mousemove', function(mouseEvent) {
-	        
-	    	polygonoverlay.setPosition(mouseEvent.latLng); 
-	    });
+			// 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다 
+			kakao.maps.event.addListener(polygon, 'mousemove', function(
+					mouseEvent) {
 
-	    // 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
-	    // 커스텀 오버레이를 지도에서 제거합니다 
-	    kakao.maps.event.addListener(polygon, 'mouseout', function() {
-	        polygon.setOptions({fillColor: '#fff'});
-	        polygonoverlay.setMap(null);
-	    }); 
+				polygonoverlay.setPosition(mouseEvent.latLng);
+			});
 
-	    // 다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시합니다 
-	    kakao.maps.event.addListener(polygon, 'click', function(mouseEvent) {
-	        var content = '<div class="info">' + 
-	                    '   <div class="title">' + area.name + '</div>' +
-	                    '   <div class="size">총 면적 : 약 ' + Math.floor(polygon.getArea()) + ' m<sup>2</sup></area>' +
-	                    '</div>';
+			// 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
+			// 커스텀 오버레이를 지도에서 제거합니다 
+			kakao.maps.event.addListener(polygon, 'mouseout', function() {
+				polygon.setOptions({
+					fillColor : '#fff'
+				});
+				polygonoverlay.setMap(null);
+			});
 
-	        infowindow.setContent(content); 
-	        infowindow.setPosition(mouseEvent.latLng); 
-	        infowindow.setMap(map);
-	    });
+			// 다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시합니다 
+			kakao.maps.event.addListener(polygon, 'click',
+					function(mouseEvent) {
+						var content = '<div class="info">'
+								+ '   <div class="title">' + name + '</div>'
+								+ '   <div class="size">총 면적 : 약 '
+								+ Math.floor(polygon.getArea())
+								+ ' m<sup>2</sup></area>' + '</div>';
+
+						infowindow.setContent(content);
+						infowindow.setPosition(mouseEvent.latLng);
+						infowindow.setMap(map);
+					});
+		}
+	
+	function emddisplayArea(coordinates, name) { // 읍면동 폴리곤 활성화
+		
 	}
-	    
 	</script>
 </body>
 </html>

@@ -13,6 +13,7 @@
 <script  src="https://code.jquery.com/jquery-3.5.1.min.js"  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="  crossorigin="anonymous"></script>
 </head>
 <body>
+	<span style="visibility: hidden;" id="hidden"></span>
 	<p style="margin-top: -12px">
 		<em class="link"> <a href="/web/documentation/#MapTypeId"
 			target="_blank">지도 타입을 보시려면 여기를 클릭하세요!</a>
@@ -49,7 +50,7 @@
 		mapOption = {
 // 			center : new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
 			center : new kakao.maps.LatLng(35.202582, 129.056756), // 지도의 중심좌표
-			level : 6
+			level : 10
 		// 지도의 확대 레벨
 		};
 
@@ -60,7 +61,7 @@
 		infowindow = new kakao.maps.InfoWindow({removable: true});
 
 		var polygons=[]; 		// 단일 읍면동 폴리곤을 담고 있는 전역변수 -> 이것을 이용해서 읍면동 폴리곤을 제거할 것이다
-			
+		let temcontainer = new Set();		// 시험삼아 만든 녀석 나중에 지울 것임	
 
 		// 지도 확대 축소를 제어할 수 있는  줌 컨트롤을 생성합니다
 		var zoomControl = new kakao.maps.ZoomControl();
@@ -80,15 +81,17 @@
 		
 		// 중심 좌표나 확대 수준이 변경됐을 때 지도 중심 좌표에 대한 주소 정보를 표시하도록 이벤트를 등록합니다
 		kakao.maps.event.addListener(map, 'idle', function() {
-		    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
-		    console.log('행정동 주소 : ' , $('#centerAddr').html());
+			switch (map.getLevel()) {
+			case 7: case 5: case 6:
+			    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+			    console.log('행정동 주소 : ' , $('#centerAddr').html());
+			    callAddress();
+				break;
+			default:
+				return false;
+				break;
+			}
 		});
-
-		var callback = function(result, status){
-		    if(status === daum.maps.services.Status.OK){
-		        alert("지역명 : " + result[0].address_name);
-		    }
-		};
 
 		function searchAddrFromCoords(coords, callback) {
 		    // 좌표로 행정동 주소 정보를 요청합니다
@@ -100,9 +103,12 @@
 		    geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
 		}
 
-		 searchDetailAddrFromCoords(map.getCenter(), function(result, status) {
-			 console.log('지번주소 : ', result[0].address.address_name.split(' ')[2] );
-		 })
+		function callAddress() {
+		  	searchDetailAddrFromCoords(map.getCenter(), function(result, status) {
+				$('#hidden').html(result[0].address.address_name.split(' ')[2]);
+// 				console.log('지번 주소 : ', $('#hidden').html());
+		 	})
+		}
 		
 		// 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
 		function displayCenterInfo(result, status) {
@@ -138,6 +144,7 @@
 			case 1:	case 2:	case 3:	case 4:
 				underfive();
 				 deleteEmd()
+				 temcontainer.clear();
 				break;
 			case 5:	case 6:	case 7:
 				emdLevel();
@@ -145,12 +152,14 @@
 			case 8:
 			case 9:
 				sigunguLevel();
-				deleteEmd()
+				deleteEmd();
+				temcontainer.clear();
 				break;
 			case 10:
 			case 11:
 				sidoLevel();
-				 deleteEmd()
+				 deleteEmd();
+				 temcontainer.clear();
 				break;
 			case 12:
 			case 13:
@@ -212,6 +221,9 @@
   	  
 		console.log('250m 시작!!!');
 		if (!emd_switch) {
+			// EMD250geoJson 을 경상남도, 경상북도, 서울특별시 등으로 바꾼다면
+			// 개별적으로 geoJson을 불러올 수 있을 것이다
+			// 해당 지도의 중심 값으로 그 값을 가져오면 유용할듯하다
 			$.getJSON("mymap/json/EMD250geoJson.geojson", function(geojson) {
 				let emd_datas = geojson.features;
 				let emd_coordinate = [];
@@ -298,19 +310,19 @@
 			['서울특별시',126.989704304000043,37.554652018000070],
 			['부산광역시',129.056755798000040,35.202582395000036],
 			['대구광역시',128.563210852000111,35.832479974000080],
-			['인천광역시',126.379741421000062,37.581222317000027],
+			['인천광역시',126.419741421000062,37.481222317000027],
 			['광주광역시',126.833350815000017,35.158504522000044],
 			['대전광역시',127.391941359000043,36.342568954000058],
 			['울산광역시',129.236540311000113,35.556393074000027],
 			['세종특별자치시',127.256688456000006,36.563423479000051],
-			['경기도',127.176049491000072,37.337718695000081],
+			['경기도',127.326049491000072,37.337718695000081],
 			['강원도',128.298985815000037,37.727934259000051],
 			['충청북도',127.828405814000007,36.740672952000068],
 			['충청남도',126.845523122000031,36.532614624000075],
 			['전라북도',127.138558927000076,35.718709316000059],
 			['전라남도',126.895755980000104,34.876114237000024],
-			['경상북도',128.746789721000027,36.350308934000054],
-			['경상남도',128.259754123000107,35.325284010000075],
+			['경상북도',128.746789721000027,36.450308934000054],
+			['경상남도',128.229754123000107,35.425284010000075],
 			['제주특별자치도',126.551568295000038,33.389842603000034],
 		];
 		
@@ -333,15 +345,27 @@
 	    	}
 	}
 	
+	
 
 	
 	// 읍면동 폴리곤 활성화
 	function emddisplayArea(coordinates, name) {
 		var emd_path = [];	// 
-		var sigunguName = $('#centerAddr').html().split(' ');
-// 		console.log('name : ', name);
-		if(name != sigunguName[2])
+// 		for(p = 0; p < temcontainer; p++) {
+// 			console.log('tem : ', tem_container[p]);
+// 			console.log('hidden : ', $('#hidden').html());
+// 			if(temcontainer[p] == $('#hidden').html())
+// 				return false;
+// 		}
+		if(temcontainer.has($('#hidden').html()))
 			return false;
+		
+		if(name != $('#hidden').html())
+			return false;
+		
+		temcontainer.add(name);
+		console.log('name : ', name);
+		console.log('temcontainer : ', temcontainer);
 		
 		$.each(coordinates[0][0], function(index1, coordinate) { //console.log(coordinates)를 확인해보면 보면 [0]번째에 배열이 주로 저장이 됨.  그래서 [0]번째 배열에서 꺼내줌.
 			
@@ -407,7 +431,7 @@
 					infowindow.setMap(map);
 				});
 		
-		emd_switch = true;		// 읍면동 폴리곤이 이미 그려졌으니 더이상 그리지 않도록 방지하는 안전장치 
+// 		emd_switch = true;		// 읍면동 폴리곤이 이미 그려졌으니 더이상 그리지 않도록 방지하는 안전장치 
 	}
 	
 	function deleteEmd() {

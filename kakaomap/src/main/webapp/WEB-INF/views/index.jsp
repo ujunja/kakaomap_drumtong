@@ -351,12 +351,6 @@
 	// 읍면동 폴리곤 활성화
 	function emddisplayArea(coordinates, name) {
 		var emd_path = [];	// 
-// 		for(p = 0; p < temcontainer; p++) {
-// 			console.log('tem : ', tem_container[p]);
-// 			console.log('hidden : ', $('#hidden').html());
-// 			if(temcontainer[p] == $('#hidden').html())
-// 				return false;
-// 		}
 		if(temcontainer.has($('#hidden').html()))
 			return false;
 		

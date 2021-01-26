@@ -14,11 +14,9 @@
 </head>
 <body>
 	<span style="visibility: hidden;" id="hidden"></span>
-	<p style="margin-top: -12px">
-		<em class="link"> <a href="/web/documentation/#MapTypeId"
-			target="_blank">지도 타입을 보시려면 여기를 클릭하세요!</a>
-		</em>
-	</p>
+	<div style="width: 100%; height: 100px; background-color: #F0E68C; display: flex; justify-content: center; align-items: center;">
+		<h1 style="background-color: transparent; color: white; font-size: 24pt"> LSWN's Kakao Map</h1>
+	</div>		
 	<div class="map_wrap">
 		<div id="map" style="width: 100%; height: 500px;"></div>
 		 <div class="hAddr">

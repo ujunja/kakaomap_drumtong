@@ -149,21 +149,17 @@
 			case 5:	case 6:	case 7:
 				emdLevel();
 				break;
-			case 8:
-			case 9:
+			case 8:	case 9:
 				sigunguLevel();
 				deleteEmd();
 				temcontainer.clear();
 				break;
-			case 10:
-			case 11:
+			case 10: case 11:
 				sidoLevel();
 				 deleteEmd();
 				 temcontainer.clear();
 				break;
-			case 12:
-			case 13:
-			case 14:
+			case 12: case 13: case 14:
 				map.setLevel(11);
 				break;
 			default:
@@ -193,7 +189,6 @@
 			document.getElementById('message').innerHTML = message;
 			// 개발자도구를 통해 직접 message 내용을 확인해 보세요.
 		}
-		
 
 	
 	// 읍면동 레벨 - 오픈마켓에서 다운받아 좌표변환(WGS 84 : EPGS 4326) 시킨 폴리곤을 나타내줌

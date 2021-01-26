@@ -153,9 +153,9 @@
 				temcontainer.clear();
 				break;
 			case 10: case 11:
-				sidoLevel();
-				 deleteEmd();
-				 temcontainer.clear();
+  				sidoLevel();
+				deleteEmd();
+				temcontainer.clear();
 				break;
 			case 12: case 13: case 14:
 				map.setLevel(11);
@@ -194,7 +194,7 @@
 	  $('.erase').parent().remove();
 		
   	  for(i = 0; i < data.length; i++) {
-  	 		let content = '<div class="erase"><div class="mark">' + data[i][2] +'</div></div>';
+  	 		let content = '<div class="erase"><div class="mark"">' + data[i][2] +'</div></div>';
  		   	    	
 			// 커스텀 오버레이가 표시될 위치입니다 
 			let position = new kakao.maps.LatLng(data[i][0], data[i][1]);  
@@ -212,7 +212,6 @@
 // 			globaloverlay.push(customOverlay);
     	}
   	  
-		console.log('250m 시작!!!');
 		if (!emd_switch) {
 			// EMD250geoJson 을 경상남도, 경상북도, 서울특별시 등으로 바꾼다면
 			// 개별적으로 geoJson을 불러올 수 있을 것이다
@@ -222,7 +221,7 @@
 				let emd_coordinate = [];
 				let emd_nm = "";
 			
-				console.log('emd_datas : ', emd_datas);
+// 				console.log('emd_datas : ', emd_datas);
 			
 				$.each(emd_datas, function(index, item) {
 					emd_coordinates = item.geometry.coordinates;
@@ -276,7 +275,7 @@
 		let sigungu = ${sigungu };
 		
 	  	  for(i = 0; i < sigungu.length; i++) {
-			 	let sigungu_content = '<div class="erase"><div class="sido">'
+			 	let sigungu_content = '<div class="erase"><div class="sido" onclick="setLevel7()">'
 			 	+ (sigungu[i].sigungunm).substring(1, sigungu[i].sigungunm.length - 1) +'</div></div>';
 	 		   	    	
 				// 커스텀 오버레이가 표시될 위치입니다 
@@ -320,7 +319,8 @@
 		];
 		
 	  	  for(i = 0; i < sidoCenter.length; i++) {
-			 	let sido_content = '<div class="erase"><div class="sido">' + sidoCenter[i][0] +'</div></div>';
+			 	let sido_content = '<div class="erase"><div class="sido" onclick="setLevel9()">'
+			 										+ sidoCenter[i][0] +'</div></div>';
 	 		   	    	
 				// 커스텀 오버레이가 표시될 위치입니다 
 				let sido_position = new kakao.maps.LatLng(sidoCenter[i][2], sidoCenter[i][1]);  
@@ -429,6 +429,15 @@
 		infowindow.setMap(null);
 		emd_switch = false;
 	}
+	
+	function setLevel9() {
+		map.setLevel(9);
+	}
+	
+	function setLevel7() {
+		map.setLevel(7);
+	}
+	
 	</script>
 </body>
 </html>

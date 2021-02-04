@@ -3,14 +3,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="cpath">${pageContext.request.contextPath }</c:set>
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<!-- global css -->	
-<link rel="stylesheet" href="${cpath }/mymap/css/mymap.css">
-<!-- jqueryCDN -->
-<script  src="https://code.jquery.com/jquery-3.5.1.min.js"  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="  crossorigin="anonymous"></script>
+	<!-- global css -->	
+	<link rel="stylesheet" href="${cpath }/mymap/css/mymap.css">
+	<!-- jqueryCDN -->
+	<script  src="https://code.jquery.com/jquery-3.5.1.min.js"  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="  crossorigin="anonymous"></script>
+	<!-- Axios -->
+   	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
 	<span style="visibility: hidden;" id="hidden"></span>
@@ -139,15 +141,15 @@
 			var level = map.getLevel();
 			
 			switch (level) {
-			case 1:	case 2:	case 3:	case 4:
+			case 1:	case 2:	case 3:	
 				underfive();
-				 deleteEmd()
-				 temcontainer.clear();
+				deleteEmd()
+				temcontainer.clear();
 				break;
-			case 5:	case 6:	case 7:
+			case 4: case 5:	case 6:	
 				emdLevel();
 				break;
-			case 8:	case 9:
+			case 7: case 8:	case 9:	
 				sigunguLevel();
 				deleteEmd();
 				temcontainer.clear();
@@ -158,7 +160,7 @@
 				temcontainer.clear();
 				break;
 			case 12: case 13: case 14:
-				map.setLevel(11);
+				map.setLevel(12);
 				break;
 			default:
 				break;
@@ -192,25 +194,7 @@
 	// 읍면동 레벨 - 오픈마켓에서 다운받아 좌표변환(WGS 84 : EPGS 4326) 시킨 폴리곤을 나타내줌
  	function emdLevel() {
 	  $('.erase').parent().remove();
-		
-  	  for(i = 0; i < data.length; i++) {
-  	 		let content = '<div class="erase"><div class="mark"">' + data[i][2] +'</div></div>';
- 		   	    	
-			// 커스텀 오버레이가 표시될 위치입니다 
-			let position = new kakao.maps.LatLng(data[i][0], data[i][1]);  
-
-			// 커스텀 오버레이를 생성합니다
-			let customOverlay = new kakao.maps.CustomOverlay({
-		   	 position: position,
-		   	 content: content,
-	    		xAnchor: 0.3,
-	   			 yAnchor: 0.91
-			});
-		
-			// 커스텀 오버레이를 지도에 표시합니다
-			customOverlay.setMap(map);
-// 			globaloverlay.push(customOverlay);
-    	}
+		  emdAxios();		
   	  
 		if (!emd_switch) {
 			// EMD250geoJson 을 경상남도, 경상북도, 서울특별시 등으로 바꾼다면
@@ -221,7 +205,7 @@
 				let emd_coordinate = [];
 				let emd_nm = "";
 			
-// 				console.log('emd_datas : ', emd_datas);
+				console.log('emd_datas : ', emd_datas);
 			
 				$.each(emd_datas, function(index, item) {
 					emd_coordinates = item.geometry.coordinates;
@@ -230,7 +214,45 @@
 				});
 			});
 		}
+
 	}
+	
+	function emdAxios() { // 읍면동 지도 비동기
+		
+		const axiosPath = 'mymap/emdmap/rest/';
+		const axPost = async() => {
+		    await axios.post(axiosPath)
+		    // 정상
+				.then( (response) => {
+		    const data = response.data;
+		    let emdCenter = data;			// 반환 결과 불러오기
+		    console.log('읍면동 지도 불러오기');
+		    
+		    for(i = 0; i < emdCenter.length; i++) {
+		    	if(emdCenter[i].count != 0) {
+		 	   		let emd_content = '<div class="erase" onmouseover="zindexup(this)" onmouseout="zindexdown(this)">' +
+		 	   				'<div class="mark-content"><div class="mark-count">' + 
+		    				emdCenter[i].count + '</div>' + emdCenter[i].emdname +'</div></div>';
+		    		let emd_position = new kakao.maps.LatLng(emdCenter[i].pointy, emdCenter[i].pointx); 
+		    	
+					// 커스텀 오버레이를 생성합니다
+					let customOverlay = new kakao.maps.CustomOverlay({
+				   		position: emd_position,
+				   	 	content: emd_content,
+		    			xAnchor: 0.3,
+		   				yAnchor: 0.91
+					});
+				
+					// 커스텀 오버레이를 지도에 표시합니다
+					customOverlay.setMap(map);
+				}
+		    }
+		    
+			})
+		}
+		return axPost();
+	}
+	
 	
 	function underfive() {
 		$('.erase').parent().remove();
@@ -270,16 +292,27 @@
 
 	}
 	
-	function sigunguLevel() {
+	function sigunguLevel() {		// 시군구 레벨 지도
 		$('.erase').parent().remove();
-		let sigungu = ${sigungu };
-		
-	  	  for(i = 0; i < sigungu.length; i++) {
+		sigunguAxios();
+	}
+	
+	function sigunguAxios() {		// 시군구 지도 비동기
+		const axiosPath = 'mymap/sigungumap/rest/';
+		const axPost = async() => {
+		    await axios.post(axiosPath)
+		    // 정상
+				.then( (response) => {
+		    const data = response.data;
+		    let sigCenter = data;			// 반환 결과 불러오기
+		    console.log('시군구 지도 불러오기');
+		   
+		    for(i = 0; i < sigCenter.length; i++) {
 			 	let sigungu_content = '<div class="erase"><div class="sido" onclick="setLevel7()">'
-			 	+ (sigungu[i].sigungunm).substring(1, sigungu[i].sigungunm.length - 1) +'</div></div>';
+			 	+ sigCenter[i].signame +'</div></div>';
 	 		   	    	
 				// 커스텀 오버레이가 표시될 위치입니다 
-				let sigungu_position = new kakao.maps.LatLng(sigungu[i].pointy, sigungu[i].pointx);  
+				let sigungu_position = new kakao.maps.LatLng(sigCenter[i].pointy, sigCenter[i].pointx);  
 				// 커스텀 오버레이를 생성합니다
 				let sigungu_Overlay = new kakao.maps.CustomOverlay({
 			   	 position: sigungu_position,
@@ -290,40 +323,34 @@
 			
 				// 커스텀 오버레이를 지도에 표시합니다
 				sigungu_Overlay.setMap(map);
-	    	}
+	    		}
+		    
+		     })
+		}
+		return axPost();
 	}
 	
-	function sidoLevel() {
+
+	function sidoLevel() {		// 시도 레벨 지도
 		$('.erase').parent().remove();
-		
-		// define		: Korean_1985_Korea_Central_Belt	-> TM
-		// projection	: GCS_WGS_1984						-> WGS
-		let sidoCenter = [
-			['서울특별시',126.989704304000043,37.554652018000070],
-			['부산광역시',129.056755798000040,35.202582395000036],
-			['대구광역시',128.563210852000111,35.832479974000080],
-			['인천광역시',126.419741421000062,37.481222317000027],
-			['광주광역시',126.833350815000017,35.158504522000044],
-			['대전광역시',127.391941359000043,36.342568954000058],
-			['울산광역시',129.236540311000113,35.556393074000027],
-			['세종특별자치시',127.256688456000006,36.563423479000051],
-			['경기도',127.326049491000072,37.337718695000081],
-			['강원도',128.298985815000037,37.727934259000051],
-			['충청북도',127.828405814000007,36.740672952000068],
-			['충청남도',126.845523122000031,36.532614624000075],
-			['전라북도',127.138558927000076,35.718709316000059],
-			['전라남도',126.895755980000104,34.876114237000024],
-			['경상북도',128.746789721000027,36.450308934000054],
-			['경상남도',128.229754123000107,35.425284010000075],
-			['제주특별자치도',126.551568295000038,33.389842603000034],
-		];
-		
-	  	  for(i = 0; i < sidoCenter.length; i++) {
+		sidoAxios();
+	}
+	
+	function sidoAxios() {		// 시도 SQL 비동기
+		const axiosPath = 'mymap/sidomap/rest/';
+		const axPost = async () => { // async : 비동기 실행 함수
+		    await axios.post(axiosPath)
+		    // 정상
+				.then( (response) => {
+		    const data = response.data;
+		    let sidoCenter = data;			// 반환 결과 불러오기
+		    console.log('시도 지도 불러오기');
+			for(i = 0; i < sidoCenter.length; i++) {
 			 	let sido_content = '<div class="erase"><div class="sido" onclick="setLevel9()">'
-			 										+ sidoCenter[i][0] +'</div></div>';
+			 										+ sidoCenter[i].sidoname +'</div></div>';
 	 		   	    	
 				// 커스텀 오버레이가 표시될 위치입니다 
-				let sido_position = new kakao.maps.LatLng(sidoCenter[i][2], sidoCenter[i][1]);  
+				let sido_position = new kakao.maps.LatLng(sidoCenter[i].pointy, sidoCenter[i].pointx);  
 
 				// 커스텀 오버레이를 생성합니다
 				let sido_Overlay = new kakao.maps.CustomOverlay({
@@ -335,10 +362,12 @@
 			
 				// 커스텀 오버레이를 지도에 표시합니다
 				sido_Overlay.setMap(map);
-	    	}
+	  		  	}
+			
+		     })
+		  }
+		return axPost();
 	}
-	
-	
 
 	
 	// 읍면동 폴리곤 활성화
@@ -355,9 +384,7 @@
 		console.log('temcontainer : ', temcontainer);
 		
 		$.each(coordinates[0][0], function(index1, coordinate) { //console.log(coordinates)를 확인해보면 보면 [0]번째에 배열이 주로 저장이 됨.  그래서 [0]번째 배열에서 꺼내줌.
-			
 			emd_path.push(new kakao.maps.LatLng(coordinate[1], coordinate[0])); //new daum.maps.LatLng가 없으면 인식을 못해서 path 배열에 추가
-		
 		});	  
 		
 		// 다각형을 생성합니다 
@@ -417,7 +444,6 @@
 					infowindow.setPosition(mouseEvent.latLng);
 					infowindow.setMap(map);
 				});
-		
 // 		emd_switch = true;		// 읍면동 폴리곤이 이미 그려졌으니 더이상 그리지 않도록 방지하는 안전장치 
 	}
 	
@@ -436,6 +462,14 @@
 	
 	function setLevel7() {
 		map.setLevel(7);
+	}
+	
+	function zindexup(object) {		// 읍면동 마커에 마우스를 올리면 제일 위로 올려줌
+		object.parentNode.style.zIndex = '100';
+	}
+
+	function zindexdown(object) {	// 읍면동 마커에 마우스를 빼면 원래대로 돌려줌
+		object.parentNode.style.zIndex = '0';
 	}
 	
 	</script>

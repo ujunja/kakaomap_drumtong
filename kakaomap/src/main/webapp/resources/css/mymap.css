@@ -1,4 +1,4 @@
-	.erase {width: auto; height: auto;}
+	.erase {width: auto; height: auto; z-index: 0; cursor: pointer;}
 
 	.sido {
 		width: auto;
@@ -14,12 +14,17 @@
 		justify-content: center;
 		cursor: pointer;
 	}
-
-	.mark {
-	border-radius:10px; border: 1px solid blue; color: white; font-size: 14px; width: 30px; height: 30px; background: blue
+	.mark-content {
+		position:relative ;display:flex; height: 30px; font-size: 12pt; border: 2px solid skyblue; justify-content: right;
+		border-radius: 30px; align-items: center; background: white; padding-left: 35px; padding-right: 3px;
 	}
+	.mark-count {
+		position: absolute; top:-1px ; left:-1px ;border-radius:50%; color: white; font-size: 10pt; width: 30px; height: 105%; background: skyblue; text-align: center;
+		display: flex; align-items: center; justify-content: center;
+	}
+	
 	.circle {
-	border-radius:50%; border: 1px solid aqua; color: white; font-size: 24px; width: 100px; height: 100px; background: aqua; display: flex; align-items: center; justify-content: center;
+		border-radius:50%; border: 1px solid aqua; color: white; font-size: 24px; width: 100px; height: 100px; background: aqua; display: flex; align-items: center; justify-content: center;
 	}
 	
 	.area {

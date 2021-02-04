@@ -5,7 +5,13 @@
 
 <!-- 사업장 비즈니스 테이블	 -->
 <mapper namespace="com.mymap.dao.MyMapDao">
-	<select id="getMap" resultType="com.mymap.vo.sigunguvo">
-		select * from sigungu
+	<select id="getSigunguXY" resultType="com.mymap.vo.sigunguvo">
+		select * from sigungu2
+	</select>
+	<select id="getSidoXY" resultType="com.mymap.vo.sidovo">
+		select * from sido
+	</select>
+	<select id="getEmdXY" resultType="com.mymap.vo.emdvo">
+		select * from emd
 	</select>
 </mapper>

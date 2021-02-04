@@ -15,10 +15,7 @@ public class HomeController {
 	@Autowired MyMapService mms;
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public ModelAndView home() {	
-		ModelAndView mav = new ModelAndView("index");
-		mav.addObject("sigungu", new Gson().toJson(mms.getMap()));
-//		System.out.println("확인 : " + mms.getMap().get(0).getSigungunm());
-		return mav;
+	public String home() {	
+		return "index";
 	}
 }

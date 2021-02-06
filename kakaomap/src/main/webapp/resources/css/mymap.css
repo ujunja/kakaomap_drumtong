@@ -15,14 +15,19 @@
 		cursor: pointer;
 	}
 	.mark-content {
-		position:relative ;display:flex; height: 30px; font-size: 12pt; border: 2px solid skyblue; justify-content: right;
-		border-radius: 30px; align-items: center; background: white; padding-left: 35px; padding-right: 3px;
+		position:relative ;display:flex; height: 30px; border: 2px solid skyblue; justify-content: right;
+		border-radius: 30px; align-items: center; background: white; padding-left: 35px; padding-right: 10px;
 	}
+	
 	.mark-count {
 		position: absolute; top:-1px ; left:-1px ;border-radius:50%; color: white; font-size: 10pt; width: 30px; height: 105%; background: skyblue; text-align: center;
 		display: flex; align-items: center; justify-content: center;
 	}
 	
+	.mark-content .emdnametag {
+		font-size: 12pt; 
+	}
+		
 	.circle {
 		border-radius:50%; border: 1px solid aqua; color: white; font-size: 24px; width: 100px; height: 100px; background: aqua; display: flex; align-items: center; justify-content: center;
 	}
@@ -43,3 +48,10 @@
     .hAddr {position:absolute;left:10px;top:50px;border-radius: 2px;background:#fff;background:rgba(255,255,255,0.8);z-index:1;padding:5px;}
     #centerAddr {display:block;margin-top:2px;font-weight: normal;}
     .bAddr {padding:5px;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+    
+    
+    
+    .customoverlay {position:relative;bottom:85px;border-radius:6px;border: 1px solid #ccc;border-bottom:2px solid #ddd;float:left; background: white}
+.customoverlay:nth-of-type(n) {border:0; box-shadow:0px 1px 2px #888;}
+.customoverlay .title {display:block;text-align:center; padding:10px 15px;font-size:14px;font-weight:bold;}
+.customoverlay:after {content:'';position:absolute;margin-left:-12px;left:50%;bottom:-12px;width:22px;height:12px;background:url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}

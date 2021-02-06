@@ -33,4 +33,11 @@ public class CRestController {
 	public String getemd() {
 		return mms.getEmdXY();
 	}
+
+	// produces 를 넣지 않으면 브라우저 상에서 문자열이 물음표로 출력됩니다
+	@RequestMapping(value = "shopmap/rest/", produces =org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(produces="application/json; charset=utf8")
+	public String getShopXY() {
+		return mms.getShopXY();
+	}
 }

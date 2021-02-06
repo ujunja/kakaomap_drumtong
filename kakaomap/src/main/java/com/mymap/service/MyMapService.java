@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.mymap.awsdao.AwsDao;
 import com.mymap.dao.MyMapDao;
 import com.mymap.vo.emdvo;
+import com.mymap.vo.shopvo;
 import com.mymap.vo.sidovo;
 import com.mymap.vo.sigunguvo;
 
@@ -15,6 +17,7 @@ import com.mymap.vo.sigunguvo;
 public class MyMapService {
 
 	@Autowired MyMapDao mmd;
+	@Autowired AwsDao awd;
 	
 	public String getSidoXY() {
 		List<sidovo> sido = mmd.getSidoXY();
@@ -29,5 +32,10 @@ public class MyMapService {
 	public String getEmdXY() {
 		List<emdvo> emd = mmd.getEmdXY();
 		return new Gson().toJson(emd);
+	}
+
+	public String getShopXY() {
+		List<shopvo> shop = awd.getShopXY();
+		return new Gson().toJson(shop);
 	}
 }

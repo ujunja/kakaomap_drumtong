@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+		"-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- AWS 테이블	 -->
+<mapper namespace="com.mymap.awsdao.AwsDao">
+	<select id="getShopXY" resultType="com.mymap.vo.shopvo">
+		select brandnaming, latitude, longitude from binformation
+	</select>
+</mapper>

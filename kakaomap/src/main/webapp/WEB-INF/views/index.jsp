@@ -19,6 +19,9 @@
 <body>
 	<span style="visibility: hidden;" id="sido-hidden"></span>
 	<span style="visibility: hidden;" id="hidden"></span>
+	<span style="visibility: hidden;" id="currentlatitude"></span>
+	<span style="visibility: hidden;" id="currentlongitude"></span>
+	<span style="visibility: hidden;" id="hidden"></span>
 	<div
 		style="width: 100%; height: 100px; background-color: #F0E68C; display: flex; justify-content: center; align-items: center;">
 		<h1
@@ -36,51 +39,62 @@
 	<script type="text/javascript"
 		src="//dapi.kakao.com/v2/maps/sdk.js?appkey=683cef37c8e822b967d6997468818ca4&libraries=services"></script>
 	<script>
-	
-	let data = [
-			[33.450701, 126.570667, 'A'],
-			[33.350701, 126.170667, 'B'],
-			[33.550701, 126.370667, 'C'],
-			[33.250701, 126.270667, 'D'],
-			[33.250701, 126.170667, 'E'],
-			[33.450701, 126.370667, 'F'],
-			[33.440701, 126.560667, 'G'],
-			[33.450701, 126.460667, 'H'],
-			[33.460701, 126.560667, 'I'],
-			[33.440701, 126.570667, 'G'],
-			[33.455701, 126.563667, 'I'],
-		]
-	
-		var emdpkContainer = new Array();
-	
-		var markersContainer = new Array();	// 생성된 마커를 지워주기 위한 전역변수 저장공간
-	 	var markersOverLays = new Array();
-		
-		var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-		mapOption = {
-// 			center : new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-			center : new kakao.maps.LatLng(35.202582, 129.056756), // 지도의 중심좌표
-			level : 10
-		// 지도의 확대 레벨
-		};
 
+		window.onload = function() {
+			getInfo();	// 윈도우즈 활성화 될때마다 지도 처음 레벨은 6에 맞는 부분을 활성화시켜줌
+		} 		
+	
+		var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+
+			mapOption = {
+		 			center : new kakao.maps.LatLng(37.55102, 126.99023), // 지도의 중심좌표
+					level : 7
+				// 지도의 확대 레벨
+				};
 		var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
 		
-		var emd_switch = false;									// 읍면동_폴리곤이 활성화되었으면 더이상 작동 못하게 하는 안전장치 
+		// HTML5의 geolocation으로 사용할 수 있는지 확인합니다
+		// 현재 위치를 기반으로 맵의 중심을 결정한다
+		if (navigator.geolocation) {
+		    
+		    // GeoLocation을 이용해서 접속 위치를 얻어옵니다
+		    navigator.geolocation.getCurrentPosition(function(position) {
+		        const currentlat = position.coords.latitude; // 위도
+		        const currentlon = position.coords.longitude; // 경도
+		        
+		        const currentPosition = new kakao.maps.LatLng(currentlat, currentlon); // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
+		        map.setCenter(currentPosition);
+		    });
+		} 
+		else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
+			const currentPosition = new kakao.maps.LatLng(37.55102, 126.99023);
+			map.setCenter(currentPosition);
+		}
+		
+
+		// 읍면동 레벨 전역변수들 -> 필요없는 거 삭제바람
 		polygonoverlay = new kakao.maps.CustomOverlay({}),		// 읍면동_폴리곤의 오버레이
 		emdinfowindow = new kakao.maps.InfoWindow({removable: true});
-
 		var polygons = []; 		// 단일 읍면동 폴리곤을 담고 있는 전역변수 -> 이것을 이용해서 읍면동 폴리곤을 제거할 것이다
-		var polygonsMap = new Map();
 
+		// 레벨 1~3 마커 관련 전역변수
+		var markersContainer = new Array();	// 생성된 마커를 지워주기 위한 전역변수 저장공간
+	 	var markersOverLays = new Array();	// 생성된 마커와 연계되는 커스텀 오버레이를 담아두는 전역공간
 		
 		
 		// 지도 확대 축소를 제어할 수 있는  줌 컨트롤을 생성합니다
 		var zoomControl = new kakao.maps.ZoomControl();
-		map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-	
+		map.addControl(zoomControl, kakao.maps.ControlPosition.BOTTOMRIGHT);			
+		
 		// 일반 지도와 스카이뷰로 지도 타입을 전환할 수 있는 지도타입 컨트롤을 생성합니다
 		var mapTypeControl = new kakao.maps.MapTypeControl();
+		// 지도 타입 컨트롤을 지도에 표시합니다
+		map.addControl(mapTypeControl, kakao.maps.ControlPosition.BOTTOMRIGHT);
+			// RIGHT  : 줌 컨트롤을 오른쪽에 생성
+			// LEFT   : 줌 컨트롤을 왼쪽에 생성
+			// TOP	  : 줌 컨트롤을 위쪽에 생성
+			// BOTTOM : 줌 컨트롤을 아래쪽에 생성
+			// RIGHT, LEFT - TOP, BOTTOM 을 조합하여 생성 가능함 
 		
 		// 주소-좌표 변환 객체를 생성합니다
 		var geocoder = new kakao.maps.services.Geocoder();
@@ -88,10 +102,9 @@
 		// 현재 지도 중심좌표로 주소를 검색해서 지도 좌측 상단에 표시합니다
 		searchAddrFromCoords(map.getCenter(), displayCenterInfo);
 
-		// 지도 타입 컨트롤을 지도에 표시합니다
-		map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
 		
 		// 중심 좌표나 확대 수준이 변경됐을 때 지도 중심 좌표에 대한 주소 정보를 표시하도록 이벤트를 등록합니다
+		// 중심 좌표나 확대 수준이 변경됐을 때 감지하는 이벤트 : 'idle'
 		kakao.maps.event.addListener(map, 'idle', function() {
 			    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
 			    console.log('행정동 주소 : ' , $('#centerAddr').html());
@@ -111,6 +124,7 @@
 		function callAddress() {
 		  	searchDetailAddrFromCoords(map.getCenter(), function(result, status) {
 				$('#hidden').html(result[0].address.address_name.split(' ')[2]);
+				// id="hidden" 태그에 카카오맵에서 받아온 행정동 주소의 '읍면동'의 부분을 삽입한다
 		 	})
 		}
 		
@@ -122,7 +136,7 @@
 		        for(var i = 0; i < result.length; i++) {
 		            // 행정동의 region_type 값은 'H' 이므로
 		            if (result[i].region_type === 'H') {
-		            	// 좌측 상단에 행정동 주소 정보를 입력함
+		            	// 좌측 상단에 행정동 주소 정보를 입력함	ex) 경상남도 김해시 내외동	-> 구주소
 		                infoDiv.innerHTML = result[i].address_name;
 		            	// id="sido-hidden" 태그에 행정동 시도 정보를 입력함
 		            	// 이것을 이용하여 geoJson 을 종류별로 읽어올 수 있도록 한다
@@ -133,16 +147,12 @@
 		    }    
 		}
 		
-		window.onload = function() {
-			getInfo();	// 윈도우즈 활성화 될때마다 지도 처음 레벨은 6에 맞는 부분을 활성화시켜줌
-		} 
-		
 		// 지도 레벨이 바뀔 때마다 이벤트
 		kakao.maps.event.addListener(map, 'zoom_changed', getInfo);
 		// 지도 움직일 때마다 이벤트
 		kakao.maps.event.addListener(map, 'dragend', getInfo);        
 		
-		function getInfo() {
+		function getInfo() {		// 레벨별로 지도 정보를 가져오는 함수
 			// 지도의 현재 중심좌표를 얻어옵니다 
 			var center = map.getCenter();
 			// 지도의 현재 레벨을 얻어옵니다
@@ -158,7 +168,6 @@
 				emdLevel();
 				deleteShopMarkers();
 				deleteEmd();
-				polygonsMap.clear();
 				emdpkContainer.length = 0;
 				break;
 			case 8:	case 9:	
@@ -202,41 +211,9 @@
 
 	
 	
-	function shopLevel() {	// 상점을 보여주는 레벨
+	function shopLevel() {	// 상점을 보여주는 레벨		: 1 ~ 3
 		$('.erase').parent().remove();
-
-		let count = 0;
-
-// 	  	for(i = 0; i < data.length; i++) {
-	  		
-// 	  		if(data[i][0] > swLatLng.Ma && data[i][0] < neLatLng.Ma) {
-// 	  			if(data[i][1] > swLatLng.La && data[i][1] < neLatLng.La) {
-// 			  		count++;
-// 	  			}
-// 	  		}
-// 	  	}
-	  	
-// 	  	if (count == 0)
-// 	  		return false;
-	  	
-// 		let content1 = '<div class="erase"><div class="circle">' + count +'</div></div>';
-// 	    let center1 = map.getCenter();	
-// 		// 커스텀 오버레이가 표시될 위치입니다 
-// // 		let position = new kakao.maps.LatLng(center1[0], center1[1]);  
-
-// 		// 커스텀 오버레이를 생성합니다
-// 		let customOverlay1 = new kakao.maps.CustomOverlay({
-// 	   	 position: center1,
-// 	   	 content: content1,
-//     		xAnchor: 0.3,
-//    			 yAnchor: 0.91
-// 		});
-	
-// 		// 커스텀 오버레이를 지도에 표시합니다
-// 		customOverlay1.setMap(map);
-
 		shopAxios();
-
 	}
 	
 	function shopAxios() {		// 상점 레벨 비동기
@@ -438,7 +415,6 @@
 	}
 	
 	
-	
 	// 읍면동 레벨 - 오픈마켓에서 다운받아 좌표변환(WGS 84 : EPGS 4326) 시킨 폴리곤을 나타내줌
  	function emdLevel() {
 	  $('.erase').parent().remove();
@@ -485,7 +461,6 @@
 	function emdPolygon(object) {
 		let view_emd_nm = object.querySelector('.emdnametag').innerHTML;
 		
-		if (!emd_switch) {
 			console.log('화면 네임 : ' + view_emd_nm);
 			
 			// EMD250geoJson 을 경상남도, 경상북도, 서울특별시 등으로 바꾼다면
@@ -496,40 +471,33 @@
 				let emd_coordinate = [];
 				let emd_nm = "";
 			
-				console.log('emd_datas : ', emd_datas);
+// 				console.log('emd_datas : ', emd_datas);
 			
 				$.each(emd_datas, function(index, item) {
 					emd_coordinates = item.geometry.coordinates;
 					emd_nm = item.properties.EMDNAME;
-					emd_num = item.properties.EMDNUM;
+					emd_num = item.properties.EMDNUM;		// EMDCODE로 수정
 					emddisplayArea(emd_coordinates, emd_nm, emd_num, view_emd_nm, object);
 				});
 			});
-		}
 	}
 	
 	// 읍면동 폴리곤 활성화
 	function emddisplayArea(coordinates, name, pknum, viewname, object) {
-		var emd_path = [];	// 
+		let emd_path = [];		// 폴리곤을 구성하는 모든 좌표를 임시로 담아두는 공간
+								// 폴리곤을 생성하는 kakao.maps.Polygon 에서 한번에 넣어준다 -> path
 		
-		
-		if(name != viewname)
+		if(name != viewname)	// 함수 속조 증가를 위해서 추가함 -> 클릭한 읍면동이 아니면 함수 종료
 			return false;
 		
-		if(emdpkContainer.indexOf(pknum) != '-1')
-			return false;
-		
-		
-		// 현재 중심좌표의 읍면동이 아닌 읍면동은 실행이 되지 않음
-// 		if(name != $('#hidden').html())
-// 			return false;
+		deletePlygons();
 		
 		$.each(coordinates[0][0], function(index1, coordinate) { //console.log(coordinates)를 확인해보면 보면 [0]번째에 배열이 주로 저장이 됨.  그래서 [0]번째 배열에서 꺼내줌.
 			emd_path.push(new kakao.maps.LatLng(coordinate[1], coordinate[0])); //new daum.maps.LatLng가 없으면 인식을 못해서 path 배열에 추가
 		});	  
 		
 		// 다각형을 생성합니다 
-		var emd_polygon = new kakao.maps.Polygon({
+		const emd_polygon = new kakao.maps.Polygon({
 				map : map, // 다각형을 표시할 지도 객체
 				path : emd_path,
 				strokeWeight : 2,
@@ -538,9 +506,7 @@
 				fillColor : '#fff',
 				fillOpacity : 0.7
 			});
-		polygons.push(emd_polygon);	// 나중에 지도의 폴리곤들을 지우기 위해서 전역변수에 폴리곤 정보를 저장함
-		emdpkContainer.push(pknum);
-		polygonsMap.set(pknum, emd_polygon);		// 맵 자료형태로 읍면동 고유번호와 읍면동 폴리곤 객체를 묶어줬음
+		polygons.push(emd_polygon);					// 나중에 지도의 폴리곤들을 지우기 위해서 전역변수에 폴리곤 정보를 저장함
 		
 		// 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다 
 		// 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
@@ -587,26 +553,29 @@
 					emdinfowindow.setPosition(mouseEvent.latLng);
 					emdinfowindow.setMap(map);
 				});
-// 		emd_switch = true;		// 읍면동 폴리곤이 이미 그려졌으니 더이상 그리지 않도록 방지하는 안전장치
 
-		object.setAttribute("onClick", "deletePolygon('" + pknum + "', this)");
-		console.log('object : ' , object);
+		// 폴리곤 활성화시킨 읍면동을 다시 클릭했을 때 지우는 함수를 부여하고자
+		object.setAttribute("onClick", "deletePolygon(this)");
 	}
 	
-	function deletePolygon(pknum, object) {
-		polygonsMap.get(pknum).setMap(null);
-		polygonsMap.delete(pknum);
-		emdpkContainer.splice(emdpkContainer.indexOf(pknum),1);
+	function deletePolygon(object) {			// 활성화된 폴리곤을 클릭했을 때 해당 폴리곤 지우기
+		deletePlygons();
+		polygonoverlay.setMap(null);
+		emdinfowindow.setMap(null);
 		object.setAttribute("onClick", "emdPolygon(this)");
 	}
 	
-	function deleteEmd() {
+	function deleteEmd() {							// 레벨변경이나 화면이동시 폴리곤 삭제하기
+		deletePlygons();
+		polygonoverlay.setMap(null);
+		emdinfowindow.setMap(null);
+	}
+	
+	function deletePlygons() {
 		for(i = 0; i < polygons.length; i++) {
 			polygons[i].setMap(null);		// 전역변수에 저장해준 읍면동 폴리곤을 삭제
 		}
-		polygonoverlay.setMap(null);
-		emdinfowindow.setMap(null);
-		emd_switch = false;
+		polygons.length = 0;
 	}
 	
 	function setLevel9() {
